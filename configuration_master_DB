@@ -1,0 +1,51 @@
+ssh vboxuser@192.168.56.30
+
+# Hostname
+sudo hostnamectl set-hostname mdb
+
+# IP statique
+sudo nano /etc/netplan/00-installer-config.yaml
+
+network:
+  ethernets:
+    enp0s3:
+      dhcp4: true
+    enp0s8:
+      addresses: [192.168.56.30/24]
+  version: 2
+
+sudo netplan apply
+
+# install mysql
+
+sudo apt update
+sudo apt install -y mysql-server
+sudo mysql_secure_installation
+
+CREATE DATABASE cloud_app;
+CREATE USER 'cloud_user'@'192.168.56.%' IDENTIFIED BY 'Cloud_Secure_2025!';
+GRANT ALL PRIVILEGES ON cloud_app.* TO 'cloud_user'@'192.168.56.%';
+
+CREATE USER 'repl_user'@'192.168.56.%' IDENTIFIED BY 'repl_secure_2024';
+GRANT REPLICATION SLAVE ON *.* TO 'repl_user'@'192.168.56.%';
+
+FLUSH PRIVILEGES;
+
+# CRÉATION DE LA TABLE IMAGES
+USE cloud_app;  -- "Entrer dans la bibliothèque cloud_app"
+
+CREATE TABLE images (
+    id INT AUTO_INCREMENT PRIMARY KEY,           -- Numéro unique automatique
+    filename VARCHAR(255) NOT NULL,              -- Nom du fichier (ex: "photo.jpg")
+    image_data LONGBLOB NOT NULL,                -- L'image elle-même (données binaires)
+    mime_type VARCHAR(100),                      -- Type (ex: "image/jpeg")
+    file_size INT,                               -- Taille en bytes
+    uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Date/heure automatique
+    server_name VARCHAR(50),                     -- "Web1" ou "Web2"
+    ip_address VARCHAR(45)                       -- IP du client qui a uploadé
+);
+
+#VÉRIFICATIONS
+SHOW DATABASES;                    -- "Montre toutes les bibliothèques"
+SELECT user, host FROM mysql.user; -- "Montre tous les bibliothécaires"
+SHOW TABLES FROM cloud_app;        -- "Montre toutes les étagères dans cloud_app"
