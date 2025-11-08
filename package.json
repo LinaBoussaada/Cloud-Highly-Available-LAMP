@@ -1,0 +1,23 @@
+{
+  "name": "cloud-app",
+  "version": "1.0.0",
+  "main": "index.js",
+   "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "web1": "SERVER_NAME=Web1 node app.js",
+    "web2": "SERVER_NAME=Web2 node app.js"
+  },
+  
+  
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

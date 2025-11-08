@@ -1,0 +1,41 @@
+web1 vm configuration
+clone lb2 
+change the hostname hostnamectl set hostname web1
+then 
+# Dans Web1 après démarrage
+sudo nano /etc/netplan/00-installer-config.yaml
+
+network:
+  ethernets:
+    enp0s3: 
+      dhcp4: true    # Adapter 1 (NAT)
+    enp0s8:
+      addresses: [192.168.56.20/24]  # Adapter 2 (Host-only 192.168.56.x)
+  version: 2
+
+sudo netplan apply
+
+# L'upgrade va se terminer automatiquement
+# Puis installez Apache :
+sudo apt install -y apache2
+
+# Démarrez Apache
+sudo systemctl start apache2
+sudo systemctl enable apache2
+
+#config node & npm
+
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# 1. Installer Node.js
+sudo apt-get install -y nodejs
+
+# 2. Vérifier l'installation
+node --version
+npm --version
+
+# 3. Arrêter Apache (car nous utiliserons Node.js)
+sudo systemctl stop apache2
+sudo systemctl disable apache2
+
+# 4. Vérifier que Node.js fonctionne
+node -e "console.log('✅ Node.js fonctionne sur Web1!')"

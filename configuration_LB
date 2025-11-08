@@ -1,0 +1,107 @@
+
+# Mettre à jour les paquets
+sudo apt update
+
+# Installer OpenSSH server
+sudo apt install -y openssh-server
+
+# Démarrer le service SSH immédiatement
+sudo systemctl start ssh
+
+# Configurer pour démarrer automatiquement au boot
+sudo systemctl enable ssh
+
+# Vérifier que SSH est actif
+sudo systemctl status ssh
+
+# Vérifier que le port 22 écoute
+sudo netstat -tlnp | grep :22
+
+# 1. Éditer la configuration réseau
+sudo nano /etc/netplan/00-installer-config.yaml
+network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: true
+    enp0s8:
+      addresses:
+        - 192.168.56.11/24
+
+sudo netplan apply
+ip a show enp0s8
+
+from my machine cmd :
+
+C:\Users\User>ping 192.168.56.11
+
+Envoi d’une requête 'Ping'  192.168.56.11 avec 32 octets de données :
+Réponse de 192.168.56.11 : octets=32 temps<1ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=5 ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=3 ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=1 ms TTL=64
+
+Statistiques Ping pour 192.168.56.11:
+    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
+Durée approximative des boucles en millisecondes :
+    Minimum = 0ms, Maximum = 5ms, Moyenne = 2ms
+
+vboxuser@LB2:~$ C:\Users\User>ping 192.168.56.11
+
+Envoi d’une requête 'Ping'  192.168.56.11 avec 32 octets de données :
+Réponse de 192.168.56.11 : octets=32 temps<1ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=5 ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=3 ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=1 ms TTL=64
+
+Statistiques Ping pour 192.168.56.11:
+    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
+Durée approximative des boucles en millisecondes :
+    Minimum = 0ms, Maximum = 5ms, Moyenne = 2msC:\Users\User>ping 192.168.56.11
+
+Envoi d’une requête 'Ping'  192.168.56.11 avec 32 octets de données :
+Réponse de 192.168.56.11 : octets=32 temps<1ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=5 ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=3 ms TTL=64
+Réponse de 192.168.56.11 : octets=32 temps=1 ms TTL=64
+
+Statistiques Ping pour 192.168.56.11:
+    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
+Durée approximative des boucles en millisecondes :
+    Minimum = 0ms, Maximum = 5ms, Moyenne = 2ms
+
+****************************
+# 1. Installer Keepalived
+sudo apt update
+sudo apt install -y keepalived
+
+# 2. Créer le fichier de configuration
+sudo mkdir -p /etc/keepalived
+sudo nano /etc/keepalived/keepalived.conf
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface enp0s8
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+    
+    authentication {
+        auth_type PASS
+        auth_pass 1234
+    }
+    
+    virtual_ipaddress {
+        192.168.56.100/24
+    }
+}
+
+
+# Sauvegarder: Ctrl+O → Enter → Ctrl+X
+
+# Démarrer Keepalived
+sudo systemctl start keepalived
+sudo systemctl enable keepalived
+
+# Vérifier le statut
+sudo systemctl status keepalived
